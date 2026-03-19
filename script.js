@@ -1,20 +1,26 @@
 let userWallet = null;
 
-// Connect wallet
+// Connect wallet (universal EVM)
 async function connectWallet() {
   if (!window.ethereum) {
-    alert("Install MetaMask");
+    alert("No EVM wallet detected. Please install MetaMask, Rabby, or OKX Wallet.");
     return;
   }
 
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts"
-  });
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
 
-  userWallet = accounts[0];
+    userWallet = accounts[0];
 
-  document.getElementById("walletAddress").innerText =
-    "Connected: " + userWallet;
+    document.getElementById("walletAddress").innerText =
+      "Connected: " + userWallet;
+
+  } catch (error) {
+    console.log(error);
+    alert("Wallet connection failed");
+  }
 }
 
 // Check-in
@@ -38,7 +44,10 @@ async function checkIn() {
 
 // Get score
 async function getScore() {
-  if (!userWallet) return;
+  if (!userWallet) {
+    alert("Connect wallet first");
+    return;
+  }
 
   const res = await fetch(`http://localhost:3000/score/${userWallet}`);
   const data = await res.json();
@@ -77,17 +86,19 @@ async function loadLogs() {
   });
 }
 
-// AI
+// AI Assistant
 function askAI() {
   const prompt = document.getElementById("prompt").value.toLowerCase();
   const chat = document.getElementById("chatbox");
 
   chat.innerHTML += `<p>You: ${prompt}</p>`;
 
-  let response = "Wallet activity looks stable.";
+  let response = "Your wallet is interacting normally.";
 
   if (prompt.includes("score")) {
-    response = "Use 'Get Score' to check real onchain score.";
+    response = "Use 'Get Score' to fetch your real onchain score.";
+  } else if (prompt.includes("activity")) {
+    response = "Your activity is tracked via GenSignt contract check-ins.";
   }
 
   chat.innerHTML += `<p>AI: ${response}</p>`;
