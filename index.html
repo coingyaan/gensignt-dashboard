@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GenSignt — AI Intelligence Layer for GenLayer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="logo">⚡ GenSignt</div>
+  <div class="status">🟢 Testnet</div>
+</div>
+
+<!-- Title -->
+<h1>GenSignt — AI Intelligence Layer for GenLayer</h1>
+<p class="subtitle">Powered by GenLayer Testnet</p>
+
+<!-- Wallet Section -->
+<div class="glass">
+  <input type="text" id="wallet" placeholder="Enter wallet address (0x...)">
+  <button onclick="loadData()">Check Stats</button>
+  <button onclick="checkIn()">Daily Check-in</button>
+
+  <div id="result"></div>
+</div>
+
+<!-- AI Assistant -->
+<div class="glass">
+  <h2>🤖 AI Explorer Assistant</h2>
+
+  <div class="chatbox" id="chatbox"></div>
+
+  <input type="text" id="prompt" placeholder="Ask about your wallet...">
+  <button onclick="askAI()">Send</button>
+</div>
+
+<!-- Features -->
+<div class="features">
+
+  <div class="glass card">
+    <h3>📊 Transaction Intelligence</h3>
+    <p>Analyze wallet activity and interaction patterns.</p>
+  </div>
+
+  <div class="glass card">
+    <h3>📈 Volume Insights</h3>
+    <p>Track transaction volume and behavioral trends.</p>
+  </div>
+
+  <div class="glass card">
+    <h3>⚡ Real-time Signals</h3>
+    <p>Get instant insights powered by intelligent contracts.</p>
+  </div>
+
+  <div class="glass card">
+    <h3>🤖 AI Explorer</h3>
+    <p>Interact with blockchain data using natural language.</p>
+  </div>
+
+</div>
+
+<!-- Leaderboard -->
+<h2>Top Active Wallets on GenLayer</h2>
+<ul id="leaderboard"></ul>
+
+<script src="script.js"></script>
+
+</body>
+</html>

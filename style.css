@@ -1,0 +1,112 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+  text-align: center;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.status {
+  color: #22c55e;
+}
+
+/* Subtitle */
+.subtitle {
+  color: #94a3b8;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 20px;
+  margin: 20px auto;
+  width: 60%;
+}
+
+/* Inputs */
+input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  width: 250px;
+  margin: 10px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: black;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(34,197,94,0.5);
+}
+
+button:hover {
+  background: #16a34a;
+}
+
+/* Chat */
+.chatbox {
+  text-align: left;
+  max-width: 500px;
+  margin: auto;
+}
+
+.message {
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.user {
+  background: #1e293b;
+}
+
+.bot {
+  background: #22c55e;
+  color: black;
+}
+
+/* Features */
+.features {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 220px;
+  margin: 10px;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  transition: 0.3s;
+}
+
+/* Results */
+#result {
+  margin-top: 15px;
+}
+
+/* Leaderboard */
+li {
+  list-style: none;
+  margin: 5px;
+}
