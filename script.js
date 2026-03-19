@@ -1,25 +1,68 @@
 let userWallet = null;
 
-// Connect wallet (universal EVM)
+// GenLayer network config
+const GENLAYER = {
+  chainId: "0x107D", // 4221
+  chainName: "GenLayer Testnet",
+  nativeCurrency: {
+    name: "GEN",
+    symbol: "GEN",
+    decimals: 18
+  },
+  rpcUrls: ["https://genlayer-testnet.rpc.caldera.xyz/http"],
+  blockExplorerUrls: []
+};
+
+// Connect wallet + switch network
 async function connectWallet() {
   if (!window.ethereum) {
-    alert("No EVM wallet detected. Please install MetaMask, Rabby, or OKX Wallet.");
+    alert("Install any EVM wallet (MetaMask, Rabby, OKX)");
     return;
   }
 
   try {
+    // Request accounts
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts"
     });
 
     userWallet = accounts[0];
 
+    // Check network
+    const chainId = await window.ethereum.request({
+      method: "eth_chainId"
+    });
+
+    if (chainId !== GENLAYER.chainId) {
+      await switchToGenLayer();
+    }
+
     document.getElementById("walletAddress").innerText =
       "Connected: " + userWallet;
 
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
     alert("Wallet connection failed");
+  }
+}
+
+// Switch network
+async function switchToGenLayer() {
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: GENLAYER.chainId }]
+    });
+  } catch (switchError) {
+    // If network not added
+    if (switchError.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [GENLAYER]
+      });
+    } else {
+      alert("Failed to switch network");
+    }
   }
 }
 
@@ -93,12 +136,10 @@ function askAI() {
 
   chat.innerHTML += `<p>You: ${prompt}</p>`;
 
-  let response = "Your wallet is interacting normally.";
+  let response = "Your wallet is active on GenLayer Testnet.";
 
   if (prompt.includes("score")) {
-    response = "Use 'Get Score' to fetch your real onchain score.";
-  } else if (prompt.includes("activity")) {
-    response = "Your activity is tracked via GenSignt contract check-ins.";
+    response = "Use Get Score to fetch your real data.";
   }
 
   chat.innerHTML += `<p>AI: ${response}</p>`;
