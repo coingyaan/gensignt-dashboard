@@ -1,91 +1,94 @@
-const CONTRACT = "0x6D8aF45fe6bbaB46c58Ffd56224d033cA3187765";
+let userWallet = null;
 
-let currentUser = null;
+// Connect wallet
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("Install MetaMask");
+    return;
+  }
 
-// Simulated onchain memory (until SDK integration)
-let users = [];
-let scores = [];
+  const accounts = await window.ethereum.request({
+    method: "eth_requestAccounts"
+  });
+
+  userWallet = accounts[0];
+
+  document.getElementById("walletAddress").innerText =
+    "Connected: " + userWallet;
+}
+
+// Check-in
+async function checkIn() {
+  if (!userWallet) {
+    alert("Connect wallet first");
+    return;
+  }
+
+  const res = await fetch("http://localhost:3000/checkin", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ wallet: userWallet })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerText =
+    "Score: " + data.score;
+}
 
 // Get score
-function getScore() {
-  const wallet = document.getElementById("wallet").value.trim();
+async function getScore() {
+  if (!userWallet) return;
 
-  if (!wallet) {
-    alert("Enter wallet address");
-    return;
-  }
+  const res = await fetch(`http://localhost:3000/score/${userWallet}`);
+  const data = await res.json();
 
-  let index = users.indexOf(wallet);
-
-  let score = index !== -1 ? scores[index] : 0;
-
-  currentUser = wallet;
-
-  document.getElementById("result").innerHTML = `
-    <p><strong>Wallet:</strong> ${wallet}</p>
-    <p>Score (onchain logic): ${score}</p>
-    <p style="color:#94a3b8;">Contract: ${CONTRACT}</p>
-  `;
+  document.getElementById("result").innerText =
+    "Score: " + data.score;
 }
 
-// Check-in (matches contract logic)
-function checkIn() {
-  if (!currentUser) {
-    alert("Load wallet first!");
-    return;
-  }
+// Leaderboard
+async function loadLeaderboard() {
+  const res = await fetch("http://localhost:3000/leaderboard");
+  const data = await res.json();
 
-  let index = users.indexOf(currentUser);
+  const list = document.getElementById("leaderboard");
+  list.innerHTML = "";
 
-  if (index !== -1) {
-    scores[index] += 10;
-  } else {
-    users.push(currentUser);
-    scores.push(10);
-  }
-
-  document.getElementById("result").innerHTML = `
-    <p>✅ Check-in successful (GenLayer Testnet)</p>
-    <p>New Score: ${scores[users.indexOf(currentUser)]}</p>
-    <p style="color:#94a3b8;">Contract: ${CONTRACT}</p>
-  `;
+  data.forEach(u => {
+    const li = document.createElement("li");
+    li.innerText = `${u.wallet} — ${u.score}`;
+    list.appendChild(li);
+  });
 }
 
-// AI Assistant (now smarter)
+// Logs
+async function loadLogs() {
+  const res = await fetch("http://localhost:3000/logs");
+  const data = await res.json();
+
+  const list = document.getElementById("logs");
+  list.innerHTML = "";
+
+  data.forEach(l => {
+    const li = document.createElement("li");
+    li.innerText = `${l.wallet} → ${l.action}`;
+    list.appendChild(li);
+  });
+}
+
+// AI
 function askAI() {
   const prompt = document.getElementById("prompt").value.toLowerCase();
-  const chatbox = document.getElementById("chatbox");
+  const chat = document.getElementById("chatbox");
 
-  if (!currentUser) {
-    alert("Load wallet first!");
-    return;
-  }
+  chat.innerHTML += `<p>You: ${prompt}</p>`;
 
-  chatbox.innerHTML += `<div class="message user">${prompt}</div>`;
-
-  let index = users.indexOf(currentUser);
-  let score = index !== -1 ? scores[index] : 0;
-
-  let response = "";
+  let response = "Wallet activity looks stable.";
 
   if (prompt.includes("score")) {
-    response = `Your onchain score is ${score}.`;
-  } 
-  else if (prompt.includes("rank")) {
-    response = "Leaderboard integration coming soon.";
-  } 
-  else if (prompt.includes("activity")) {
-    response = score > 50
-      ? "Your wallet is highly active on GenLayer."
-      : "Your wallet is still building activity.";
-  } 
-  else {
-    response = `Based on your onchain score (${score}), your wallet shows ${
-      score > 50 ? "strong engagement" : "early-stage activity"
-    }.`;
+    response = "Use 'Get Score' to check real onchain score.";
   }
 
-  setTimeout(() => {
-    chatbox.innerHTML += `<div class="message bot">${response}</div>`;
-  }, 500);
+  chat.innerHTML += `<p>AI: ${response}</p>`;
 }
