@@ -1,57 +1,39 @@
 let userWallet = null;
-
-const GENLAYER = {
-  chainId: "0x107D"
-};
-
-// Utility: set loading
-function setLoading(button, state) {
-  if (state) {
-    button.disabled = true;
-    button.innerText = "Loading...";
-  } else {
-    button.disabled = false;
-  }
-}
+let userScore = 0;
 
 // Connect wallet
 async function connectWallet() {
-  const btn = event.target;
-  setLoading(btn, true);
-
-  try {
-    if (!window.ethereum) {
-      alert("Install wallet");
-      return;
-    }
-
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts"
-    });
-
-    userWallet = accounts[0];
-
-    document.getElementById("walletAddress").innerText =
-      "Connected: " + userWallet;
-
-  } catch (err) {
-    alert("Connection failed");
+  if (!window.ethereum) {
+    alert("Install wallet");
+    return;
   }
 
-  setLoading(btn, false);
-  btn.innerText = "Connect Wallet";
+  const accounts = await window.ethereum.request({
+    method: "eth_requestAccounts"
+  });
+
+  userWallet = accounts[0];
+
+  document.getElementById("walletAddress").innerText =
+    "Connected: " + userWallet;
+}
+
+// Get score
+async function getScore() {
+  if (!userWallet) return;
+
+  const res = await fetch(`http://localhost:3000/score/${userWallet}`);
+  const data = await res.json();
+
+  userScore = data.score;
+
+  document.getElementById("result").innerText =
+    "Score: " + userScore;
 }
 
 // Check-in
 async function checkIn() {
-  const btn = event.target;
-  setLoading(btn, true);
-
-  if (!userWallet) {
-    alert("Connect wallet first");
-    setLoading(btn, false);
-    return;
-  }
+  if (!userWallet) return;
 
   const res = await fetch("http://localhost:3000/checkin", {
     method: "POST",
@@ -60,61 +42,14 @@ async function checkIn() {
   });
 
   const data = await res.json();
+  userScore = data.score;
 
   document.getElementById("result").innerText =
-    "Score: " + data.score;
-
-  setLoading(btn, false);
-  btn.innerText = "Check-in";
+    "Score: " + userScore;
 }
 
-// Get score
-async function getScore() {
-  const btn = event.target;
-  setLoading(btn, true);
-
-  if (!userWallet) {
-    alert("Connect wallet first");
-    setLoading(btn, false);
-    return;
-  }
-
-  const res = await fetch(`http://localhost:3000/score/${userWallet}`);
-  const data = await res.json();
-
-  document.getElementById("result").innerText =
-    "Score: " + data.score;
-
-  setLoading(btn, false);
-  btn.innerText = "Get Score";
-}
-
-// Leaderboard
-async function loadLeaderboard() {
-  const btn = event.target;
-  setLoading(btn, true);
-
-  const res = await fetch("http://localhost:3000/leaderboard");
-  const data = await res.json();
-
-  const list = document.getElementById("leaderboard");
-  list.innerHTML = "";
-
-  data.forEach(u => {
-    const li = document.createElement("li");
-    li.innerText = `${u.wallet} — ${u.score}`;
-    list.appendChild(li);
-  });
-
-  setLoading(btn, false);
-  btn.innerText = "Load";
-}
-
-// Logs
+// Load logs
 async function loadLogs() {
-  const btn = event.target;
-  setLoading(btn, true);
-
   const res = await fetch("http://localhost:3000/logs");
   const data = await res.json();
 
@@ -126,16 +61,78 @@ async function loadLogs() {
     li.innerText = `${l.wallet} → ${l.action}`;
     list.appendChild(li);
   });
-
-  setLoading(btn, false);
-  btn.innerText = "Load";
 }
 
-// AI
+// AI Assistant (INTELLIGENCE LAYER)
 function askAI() {
+  const prompt = document.getElementById("prompt").value.toLowerCase();
   const chat = document.getElementById("chatbox");
-  const prompt = document.getElementById("prompt").value;
 
-  chat.innerHTML += `<p>You: ${prompt}</p>`;
-  chat.innerHTML += `<p>AI: Processing your request...</p>`;
+  chat.innerHTML += `<p><b>You:</b> ${prompt}</p>`;
+
+  let response = "";
+
+  // 🧠 Intelligence logic
+
+  if (!userWallet) {
+    response = "Connect your wallet first so I can analyze your activity.";
+  }
+
+  else if (prompt.includes("score")) {
+    response = `Your current onchain score is ${userScore}.`;
+  }
+
+  else if (prompt.includes("activity")) {
+    if (userScore === 0) {
+      response = "Your wallet has no activity yet. Start with a check-in.";
+    } 
+    else if (userScore < 30) {
+      response = "Your activity is low. You are just getting started.";
+    } 
+    else if (userScore < 80) {
+      response = "You have moderate activity. Keep interacting to grow.";
+    } 
+    else {
+      response = "You are a highly active user on GenSignt.";
+    }
+  }
+
+  else if (prompt.includes("improve")) {
+    response = "To improve your score, perform daily check-ins and stay active.";
+  }
+
+  else if (prompt.includes("rank")) {
+    if (userScore > 80) {
+      response = "You are likely among top users on the leaderboard.";
+    } else {
+      response = "Increase your score to climb the leaderboard.";
+    }
+  }
+
+  else if (prompt.includes("insight")) {
+    response = generateInsight();
+  }
+
+  else {
+    response = generateInsight();
+  }
+
+  chat.innerHTML += `<p><b>AI:</b> ${response}</p>`;
+}
+
+// 🧠 Dynamic insight generator
+function generateInsight() {
+  if (userScore === 0) {
+    return "No activity detected. Your wallet is inactive.";
+  }
+
+  if (userScore < 30) {
+    return "Early-stage wallet. Growth potential is high.";
+  }
+
+  if (userScore < 80) {
+    return "Consistent user. You are building solid engagement.";
+  }
+
+  return "Power user detected. Strong engagement and high activity.";
 }
