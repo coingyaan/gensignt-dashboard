@@ -7,11 +7,22 @@ app.use(express.json());
 
 let users = [];
 let scores = [];
+let lastCheckin = {}; // store timestamp
 let logs = [];
 
-// Check-in
+// Check-in with 24h rule
 app.post("/checkin", (req, res) => {
   const { wallet } = req.body;
+
+  const now = Date.now();
+  const last = lastCheckin[wallet];
+
+  // 24 hours = 86400000 ms
+  if (last && now - last < 86400000) {
+    return res.json({
+      error: "Already checked in. Try after 24 hours."
+    });
+  }
 
   let index = users.indexOf(wallet);
 
@@ -22,12 +33,18 @@ app.post("/checkin", (req, res) => {
     scores.push(10);
   }
 
+  lastCheckin[wallet] = now;
+
   logs.push({
     wallet,
-    action: "check-in"
+    action: "check-in",
+    time: new Date().toISOString()
   });
 
-  res.json({ score: scores[users.indexOf(wallet)] });
+  res.json({
+    success: true,
+    score: scores[users.indexOf(wallet)]
+  });
 });
 
 // Score
