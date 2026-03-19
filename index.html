@@ -7,28 +7,38 @@
 <body>
 
 <div class="topbar">
-  <div class="logo">⚡ GenSignt</div>
-  <div class="status">🟢 GenLayer Testnet</div>
+  <div>⚡ GenSignt</div>
+  <div>🟢 GenLayer Testnet</div>
 </div>
 
 <h1>GenSignt — AI Intelligence Layer for GenLayer</h1>
-<p class="subtitle">Powered by GenLayer Testnet</p>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+<p id="walletAddress"></p>
 
 <div class="glass">
-  <input type="text" id="wallet" placeholder="Enter wallet address">
   <button onclick="getScore()">Get Score</button>
-  <button onclick="checkIn()">Check-in Onchain</button>
-
+  <button onclick="checkIn()">Check-in</button>
   <div id="result"></div>
 </div>
 
 <div class="glass">
   <h2>🤖 AI Assistant</h2>
-
   <div id="chatbox"></div>
-
-  <input type="text" id="prompt" placeholder="Ask about your wallet...">
+  <input id="prompt" placeholder="Ask about your wallet">
   <button onclick="askAI()">Send</button>
+</div>
+
+<div class="glass">
+  <h2>Leaderboard</h2>
+  <button onclick="loadLeaderboard()">Load</button>
+  <ul id="leaderboard"></ul>
+</div>
+
+<div class="glass">
+  <h2>Transaction Logs</h2>
+  <button onclick="loadLogs()">Load</button>
+  <ul id="logs"></ul>
 </div>
 
 <script src="script.js"></script>
